@@ -1,4 +1,29 @@
-<!DOCTYPE html>
+// Kiểm tra đăng nhập - Thêm vào đầu file teacher.html và student.html
+(function checkAuth() {
+    const currentUser = localStorage.getItem('currentUser');
+    if (!currentUser) {
+        window.location.href = 'index.html';
+        return;
+    }
+    
+    const user = JSON.parse(currentUser);
+    // Hiển thị thông tin user
+    document.getElementById('userName').textContent = user.name;
+    document.getElementById('userAvatar').textContent = user.name.charAt(0);
+    
+    // Kiểm tra role
+    if (user.role === 'teacher' && window.location.pathname.includes('student.html')) {
+        window.location.href = 'teacher.html';
+    }
+    if (user.role === 'student' && window.location.pathname.includes('teacher.html')) {
+        window.location.href = 'student.html';
+    }
+})();
+
+function logout() {
+    localStorage.removeItem('currentUser');
+    window.location.href = 'index.html';
+}<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
