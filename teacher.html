@@ -339,30 +339,50 @@
             }
         }
         
-        async function scanImageWithAI() {
-            if(!currentImageData) { showNotification('Vui lòng chọn ảnh!', true); return; }
-            const btn = document.getElementById('scanBtn');
-            btn.disabled = true; btn.innerHTML = '<span class="loading"></span> AI đang phân tích ảnh...';
-            try {
-                const response = await fetch('/api/scan', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ imageBase64: currentImageData })
-                });
-                const data = await response.json();
-                if(data.success) {
-                    aiRecognizedData = data.timetable;
-                    let html = '<strong>📖 AI đã đọc được:</strong><br>';
-                    for(let day of ["Thứ 2","Thứ 3","Thứ 4","Thứ 5","Thứ 6","Thứ 7","Chủ nhật"]) {
-                        if(aiRecognizedData[day]?.length) html += `<br><strong>${day}:</strong> ${aiRecognizedData[day].join(', ')}`;
-                    }
-                    document.getElementById('scanResultText').innerHTML = html;
-                    document.getElementById('scanResult').style.display = 'block';
-                    showNotification('AI đã đọc thành công!');
-                } else throw new Error(data.error || 'Không đọc được ảnh');
-            } catch(e) { showNotification('Lỗi: '+e.message, true); }
-            finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-brain"></i> 🤖 AI Đọc và tự động tạo TKB'; }
+      async function scanImageWithAI() {
+    if (!currentImageData) { showNotification('Vui lòng chọn ảnh!', true); return; }
+    
+    const btn = document.getElementById('scanBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading"></span> AI đang phân tích ảnh...';
+    
+    try {
+        // ✅ QUAN TRỌNG: Gọi đúng endpoint /api/scan
+        const response = await fetch('/api/scan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ imageBase64: currentImageData })
+        });
+
+        // ✅ Kiểm tra response có OK không
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("API Error:", errorText);
+            throw new Error(`Lỗi server: ${response.status}`);
         }
+
+        const data = await response.json();
+        
+        if (data.success) {
+            aiRecognizedData = data.timetable;
+            let html = '<strong>📖 AI đã đọc được:</strong><br>';
+            for (let day of ["Thứ 2","Thứ 3","Thứ 4","Thứ 5","Thứ 6","Thứ 7","Chủ nhật"]) {
+                if (aiRecognizedData[day]?.length) html += `<br><strong>${day}:</strong> ${aiRecognizedData[day].join(', ')}`;
+            }
+            document.getElementById('scanResultText').innerHTML = html;
+            document.getElementById('scanResult').style.display = 'block';
+            showNotification('AI đã đọc thành công!');
+        } else {
+            throw new Error(data.error || 'Không đọc được ảnh');
+        }
+    } catch (error) {
+        console.error("Scan error:", error);
+        showNotification('Lỗi: ' + error.message, true);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-brain"></i> 🤖 AI Đọc và tự động tạo TKB';
+    }
+}
         
         function applyAITimetable() {
             if(aiRecognizedData) {
