@@ -1,13 +1,5 @@
 {
-  "name": "studytask-manager",
+  "name": "studytask",
   "version": "1.0.0",
-  "description": "StudyTask Manager - Quản lý lớp học thông minh",
-  "main": "index.html",
-  "scripts": {
-    "dev": "vercel dev",
-    "deploy": "vercel --prod"
-  },
-  "keywords": ["education", "classroom", "task-management"],
-  "author": "",
-  "license": "MIT"
+  "type": "module"
 }
