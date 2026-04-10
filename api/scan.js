@@ -10,7 +10,7 @@ export default async function handler(req, res) {
         return res.status(200).end();
     }
     
-    // ✅ ĐÚNG: Chỉ cho phép POST
+    // ✅ ĐÚNG: Chỉ cho phép POST, các method khác trả lỗi
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
@@ -21,7 +21,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Vui lòng cung cấp ảnh' });
     }
     
-    // ✅ ĐÚNG: Tên biến phải là GEMINI_API_KEY
+    // ✅ ĐÚNG: Lấy API key từ Environment Variables trên Vercel
     const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
     
     if (!GEMINI_API_KEY) {
@@ -76,7 +76,7 @@ Bắt đầu phân tích ảnh ngay bây giờ:`;
         const match = text.match(/\{[\s\S]*\}/);
         
         if (!match) {
-            return res.status(422).json({ error: 'Không thể đọc được nội dung từ ảnh' });
+            return res.status(422).json({ error: 'Không thể đọc được nội dung từ ảnh. Vui lòng chụp ảnh rõ nét hơn!' });
         }
         
         const timetable = JSON.parse(match[0]);
