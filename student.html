@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>StudyTask Manager - Học sinh</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        
+        .dashboard-header {
+            background: rgba(255,255,255,0.98);
+            border-radius: 30px;
+            padding: 18px 25px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .header-title h1 { font-size: 1.4rem; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; align-items: center; gap: 10px; }
+        .user-info { display: flex; align-items: center; gap: 15px; background: #f8f9fa; padding: 8px 18px; border-radius: 50px; }
+        .user-avatar { width: 45px; height: 45px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.2rem; }
+        .logout-btn { background: #e74c3c; color: white; border: none; padding: 8px 18px; border-radius: 30px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+        .logout-btn:hover { transform: translateY(-2px); background: #c0392b; }
+        
+        .dashboard-tabs { display: flex; gap: 12px; margin-bottom: 25px; flex-wrap: wrap; }
+        .dash-tab { padding: 12px 28px; background: rgba(255,255,255,0.95); border: none; border-radius: 50px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.3s; color: #4b5563; }
+        .dash-tab i { margin-right: 8px; }
+        .dash-tab.active { background: linear-gradient(135deg, #667eea, #764ba2); color: white; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(102,126,234,0.3); }
+        
+        .dash-panel { display: none; background: rgba(255,255,255,0.98); border-radius: 30px; padding: 25px; animation: fadeIn 0.3s ease; }
+        .dash-panel.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .panel-title { font-size: 1.2rem; font-weight: 700; color: #1f2937; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 3px solid #667eea; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+        
+        .task-item { background: #f8f9fa; border-radius: 20px; padding: 18px; margin-bottom: 15px; border-left: 4px solid #667eea; display: flex; align-items: center; gap: 15px; }
+        .task-checkbox { width: 24px; height: 24px; cursor: pointer; }
+        .task-content { flex: 1; }
+        .task-title { font-weight: 700; margin-bottom: 5px; }
+        .task-done { text-decoration: line-through; opacity: 0.6; }
+        .task-subject { display: inline-block; padding: 3px 12px; background: #e9ecef; border-radius: 20px; font-size: 0.7rem; margin-top: 5px; }
+        
+        .rank-card { background: linear-gradient(135deg, #f39c12, #e67e22); color: white; border-radius: 24px; padding: 20px; text-align: center; margin-bottom: 20px; }
+        .rank-number { font-size: 2.5rem; font-weight: 800; }
+        
+        .leaderboard-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #e9ecef; }
+        .leaderboard-rank { width: 50px; font-weight: 700; }
+        .leaderboard-name { flex: 1; }
+        .leaderboard-score { font-weight: 600; color: #667eea; }
+        
+        .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 16px; }
+        .weekday-header { text-align: center; padding: 10px; background: #667eea; color: white; border-radius: 15px; font-weight: 600; font-size: 0.8rem; }
+        .subject-cell { background: #f8f9fa; border-radius: 15px; padding: 12px; min-height: 70px; text-align: center; font-size: 0.75rem; white-space: pre-line; }
+        
+        .custom-notification { position: fixed; bottom: 20px; left: 20px; right: 20px; background: #2c3e50; color: white; padding: 14px; border-radius: 20px; text-align: center; z-index: 1001; animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        @media (max-width: 768px) {
+            .dashboard-header { flex-direction: column; text-align: center; }
+            .weekdays { gap: 4px; }
+            .weekday-header { font-size: 0.65rem; padding: 6px; }
+            .subject-cell { font-size: 0.65rem; padding: 8px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="dashboard-header">
+            <div class="header-title"><h1><i class="fas fa-graduation-cap"></i> StudyTask Manager</h1><p style="font-size:0.8rem; color:#6c757d;">Học tập thông minh mỗi ngày</p></div>
+            <div class="user-info"><div class="user-avatar" id="userAvatar">N</div><div><div class="user-name" id="userName" style="font-weight:600;">Nguyễn Văn A</div><div style="font-size:0.7rem; color:#6c757d;">Học sinh lớp 10A1</div></div><button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Thoát</button></div>
+        </div>
+        
+        <div class="dashboard-tabs">
+            <button class="dash-tab active" onclick="switchTab('tasks')"><i class="fas fa-check-circle"></i> Việc cần làm</button>
+            <button class="dash-tab" onclick="switchTab('timetable')"><i class="fas fa-calendar-alt"></i> Thời khóa biểu</button>
+            <button class="dash-tab" onclick="switchTab('rank')"><i class="fas fa-trophy"></i> Bảng xếp hạng</button>
+            <button class="dash-tab" onclick="switchTab('notifications')"><i class="fas fa-bell"></i> Thông báo</button>
+        </div>
+        
+        <div id="tasksPanel" class="dash-panel active">
+            <div class="panel-title"><span><i class="fas fa-check-circle"></i> Việc cần làm hôm nay - <span id="todayDate"></span></span><span id="taskSummary" style="font-size:0.85rem;"></span></div>
+            <div id="todayTasksList"></div>
+            <div class="panel-title" style="margin-top:25px;"><span><i class="fas fa-calendar-week"></i> Các bài tập khác</span></div>
+            <div id="otherTasksList"></div>
+        </div>
+        
+        <div id="timetablePanel" class="dash-panel">
+            <div class="panel-title"><span><i class="fas fa-calendar-alt"></i> Thời khóa biểu</span></div>
+            <div id="timetableGrid"></div>
+        </div>
+        
+        <div id="rankPanel" class="dash-panel">
+            <div class="rank-card"><div class="rank-number" id="myRank">#3</div><div>Xếp hạng của bạn</div><div style="font-size:0.85rem; margin-top:5px;">⭐ 115 điểm tích lũy</div></div>
+            <div class="panel-title"><span><i class="fas fa-trophy"></i> Bảng xếp hạng lớp</span></div>
+            <div id="leaderboardList"></div>
+        </div>
+        
+        <div id="notificationsPanel" class="dash-panel">
+            <div class="panel-title"><span><i class="fas fa-bell"></i> Thông báo từ giáo viên</span></div>
+            <div id="notificationsList"></div>
+        </div>
+    </div>
+    
+    <script>
+        let myTasks = [
+            { id: 1, title: "Bài tập chương 2", subject: "Toán", description: "Giải bài 1-5 trang 45", dueDate: "2024-04-15", isToday: true, done: false },
+            { id: 2, title: "Báo cáo thí nghiệm", subject: "Vật lý", description: "Làm báo cáo định luật Ohm", dueDate: "2024-04-12", isToday: true, done: false },
+            { id: 3, title: "Soạn bài mới", subject: "Ngữ văn", description: "Soạn bài 'Tuyên ngôn độc lập'", dueDate: "2024-04-16", isToday: false, done: false }
+        ];
+        let timetable = { "Thứ 2": ["Toán", "Vật lý"], "Thứ 3": ["Hóa học", "Ngữ văn"], "Thứ 4": ["Toán", "Lịch sử"], "Thứ 5": ["Hóa học", "Địa lý"], "Thứ 6": ["Vật lý", "Ngữ văn"], "Thứ 7": ["Sinh học", "Tin học"], "Chủ nhật": [] };
+        let notifications = [{ id: 1, title: "Thông báo kiểm tra", content: "Tuần sau kiểm tra 1 tiết môn Toán", date: "2024-04-08" }];
+        let leaderboard = [{ rank: 1, name: "Trần Thị B", score: 145 }, { rank: 2, name: "Phạm Văn D", score: 128 }, { rank: 3, name: "Nguyễn Văn A", score: 115 }, { rank: 4, name: "Lê Thị E", score: 98 }];
+        
+        function showNotification(msg) { let n = document.createElement('div'); n.className = 'custom-notification'; n.style.background = '#27ae60'; n.innerHTML = `✅ ${msg}`; document.body.appendChild(n); setTimeout(() => n.remove(), 2500); }
+        function logout() { localStorage.removeItem('user'); window.location.href = 'index.html'; }
+        function switchTab(tab) { document.querySelectorAll('.dash-tab').forEach(btn => btn.classList.remove('active')); document.querySelectorAll('.dash-panel').forEach(p => p.classList.remove('active')); event.target.classList.add('active'); document.getElementById(`${tab}Panel`).classList.add('active'); }
+        function formatDate(d) { return new Date(d).toLocaleDateString('vi-VN'); }
+        function getWeekday() { return ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'][new Date().getDay()]; }
+        
+        function renderTodayTasks() {
+            let todayTasks = myTasks.filter(t => t.isToday);
+            let completed = todayTasks.filter(t => t.done).length;
+            document.getElementById('taskSummary').innerHTML = `✅ ${completed}/${todayTasks.length} hoàn thành`;
+            let html = '';
+            todayTasks.forEach(t => {
+                html += `<div class="task-item"><input type="checkbox" class="task-checkbox" onchange="toggleTask(${t.id}, this.checked)" ${t.done ? 'checked' : ''}>
+                        <div class="task-content"><div class="task-title ${t.done ? 'task-done' : ''}">📖 ${t.subject} - ${t.title}</div><div style="font-size:0.8rem; color:#6c757d;">${t.description}</div><div style="font-size:0.7rem; margin-top:5px;">📅 Hạn: ${formatDate(t.dueDate)}</div></div></div>`;
+            });
+            document.getElementById('todayTasksList').innerHTML = html || '<div style="text-align:center; padding:40px;">🎉 Hôm nay không có việc cần làm!</div>';
+        }
+        
+        function renderOtherTasks() {
+            let otherTasks = myTasks.filter(t => !t.isToday);
+            let html = '';
+            otherTasks.forEach(t => {
+                html += `<div class="task-item"><input type="checkbox" class="task-checkbox" onchange="toggleTask(${t.id}, this.checked)" ${t.done ? 'checked' : ''}>
+                        <div class="task-content"><div class="task-title ${t.done ? 'task-done' : ''}">📖 ${t.subject} - ${t.title}</div><div style="font-size:0.8rem; color:#6c757d;">${t.description}</div><div style="font-size:0.7rem; margin-top:5px;">📅 Hạn: ${formatDate(t.dueDate)}</div></div></div>`;
+            });
+            document.getElementById('otherTasksList').innerHTML = html || '<div style="text-align:center; padding:40px;">📭 Không có bài tập nào khác</div>';
+        }
+        
+        function toggleTask(id, checked) { let task = myTasks.find(t => t.id === id); if(task) { task.done = checked; renderTodayTasks(); renderOtherTasks(); showNotification(checked ? 'Đã hoàn thành!' : 'Đã bỏ tick'); } }
+        
+        function renderTimetable() {
+            let days = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"];
+            let html = '<div class="weekdays">' + days.map(d => `<div class="weekday-header">${d}</div>`).join('') + '</div>';
+            html += '<div class="weekdays">' + days.map(d => `<div class="subject-cell">${(timetable[d] || []).join('<br>') || '📭'}</div>`).join('') + '</div>';
+            document.getElementById('timetableGrid').innerHTML = html;
+        }
+        
+        function renderLeaderboard() {
+            let html = '';
+            leaderboard.forEach(item => {
+                let isMe = item.name === "Nguyễn Văn A";
+                html += `<div class="leaderboard-item" style="${isMe ? 'background:#f0f4ff;' : ''}">
+                        <div class="leaderboard-rank">${item.rank === 1 ? '🥇' : item.rank === 2 ? '🥈' : item.rank === 3 ? '🥉' : `#${item.rank}`}</div>
+                        <div class="leaderboard-name">${item.name} ${isMe ? '(Bạn)' : ''}</div>
+                        <div class="leaderboard-score">⭐ ${item.score}</div></div>`;
+            });
+            document.getElementById('leaderboardList').innerHTML = html;
+            document.getElementById('myRank').innerHTML = leaderboard.find(l => l.name === "Nguyễn Văn A")?.rank ? `#${leaderboard.find(l => l.name === "Nguyễn Văn A").rank}` : '#?';
+        }
+        
+        function renderNotifications() {
+            let html = '';
+            notifications.forEach(n => {
+                html += `<div style="background:#f8f9fa; border-radius:15px; padding:15px; margin-bottom:10px; border-left:4px solid #667eea;">
+                        <div style="font-weight:600;">🔔 ${n.title}</div><div style="font-size:0.85rem; margin:8px 0;">${n.content}</div>
+                        <div style="font-size:0.7rem; color:#adb5bd;">📅 ${formatDate(n.date)}</div></div>`;
+            });
+            document.getElementById('notificationsList').innerHTML = html || '<div style="text-align:center; padding:40px;">📭 Chưa có thông báo</div>';
+        }
+        
+        document.getElementById('todayDate').innerText = `${getWeekday()}, ${new Date().toLocaleDateString('vi-VN')}`;
+        renderTodayTasks(); renderOtherTasks(); renderTimetable(); renderLeaderboard(); renderNotifications();
+    </script>
+</body>
+</html>
