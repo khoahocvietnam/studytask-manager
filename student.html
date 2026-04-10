@@ -63,18 +63,27 @@
         .weekday-header { text-align: center; padding: 10px; background: #667eea; color: white; border-radius: 15px; font-weight: 600; font-size: 0.8rem; }
         .subject-cell { background: #f8f9fa; border-radius: 15px; padding: 12px; min-height: 70px; text-align: center; font-size: 0.75rem; white-space: pre-line; }
         
-        .image-preview { background: #f0f0f0; border-radius: 20px; padding: 20px; margin-bottom: 15px; min-height: 180px; display: flex; align-items: center; justify-content: center; border: 2px dashed #ccc; }
+        .image-preview { background: #f0f0f0; border-radius: 20px; padding: 20px; margin-bottom: 15px; min-height: 180px; display: flex; align-items: center; justify-content: center; border: 2px dashed #ccc; cursor: pointer; flex-direction: column; gap: 10px; }
         .image-preview img { max-width: 100%; max-height: 160px; border-radius: 15px; }
+        .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 10px 20px; border-radius: 30px; font-weight: 600; cursor: pointer; }
+        .btn-success { background: #27ae60; color: white; }
+        .btn-outline { background: transparent; border: 2px solid #667eea; color: #667eea; }
         .ai-scan-btn { background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; padding: 12px; border: none; border-radius: 30px; width: 100%; font-weight: 600; cursor: pointer; }
         .loading { display: inline-block; width: 16px; height: 16px; border: 2px solid white; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 8px; }
         @keyframes spin { to { transform: rotate(360deg); } }
         
+        .api-config { background: #fff3cd; border-radius: 20px; padding: 15px; margin-bottom: 15px; }
+        .api-config input { width: 100%; padding: 10px; border: 1px solid #f59e0b; border-radius: 15px; margin-top: 8px; }
+        
         .custom-notification { position: fixed; bottom: 20px; left: 20px; right: 20px; padding: 14px 20px; border-radius: 20px; text-align: center; z-index: 1001; animation: slideUp 0.3s ease; }
         @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
-        .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 10px 20px; border-radius: 30px; font-weight: 600; cursor: pointer; }
-        .btn-success { background: #27ae60; color: white; }
-        .btn-outline { background: transparent; border: 2px solid #667eea; color: #667eea; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; border-radius: 30px; padding: 25px; width: 90%; max-width: 500px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
+        .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 15px; }
         
         @media (max-width: 768px) {
             .dashboard-header { flex-direction: column; text-align: center; }
@@ -94,7 +103,7 @@
         <div class="dashboard-tabs">
             <button class="dash-tab active" onclick="switchTab('tasks')"><i class="fas fa-check-circle"></i> Việc cần làm</button>
             <button class="dash-tab" onclick="switchTab('timetable')"><i class="fas fa-calendar-alt"></i> TKB</button>
-            <button class="dash-tab" onclick="switchTab('scan')"><i class="fas fa-camera"></i> 📸 Scan TKB</button>
+            <button class="dash-tab" onclick="switchTab('scan')"><i class="fas fa-camera"></i> Scan TKB</button>
             <button class="dash-tab" onclick="switchTab('rank')"><i class="fas fa-trophy"></i> Xếp hạng</button>
             <button class="dash-tab" onclick="switchTab('notifications')"><i class="fas fa-bell"></i> Thông báo</button>
         </div>
@@ -109,18 +118,33 @@
         
         <!-- TKB -->
         <div id="timetablePanel" class="dash-panel">
-            <div class="panel-title"><span><i class="fas fa-calendar-alt"></i> Thời khóa biểu</span></div>
+            <div class="panel-title"><span><i class="fas fa-calendar-alt"></i> Thời khóa biểu</span><button class="btn-primary" onclick="showEditTimetable()"><i class="fas fa-edit"></i> Chỉnh sửa</button></div>
             <div id="timetableGrid"></div>
         </div>
         
         <!-- Scan TKB -->
         <div id="scanPanel" class="dash-panel">
-            <div class="panel-title"><span><i class="fas fa-camera"></i> Quét ảnh TKB</span><span style="background:#e74c3c; padding:4px 12px; border-radius:20px; font-size:0.7rem; color:white;">Gemini AI</span></div>
-            <div class="image-preview" id="imagePreview"><span style="color:#999;">📷 Chọn ảnh thời khóa biểu</span></div>
+            <div class="panel-title"><span><i class="fas fa-camera"></i> Quét ảnh thời khóa biểu</span><span style="background:#e74c3c; padding:4px 12px; border-radius:20px; font-size:0.7rem; color:white;">Gemini 2.5 Flash Lite</span></div>
+            
+            <div class="api-config">
+                <i class="fas fa-key"></i> <strong>API Key Gemini</strong>
+                <input type="password" id="apiKeyInput" placeholder="Nhập API Key Gemini" value="">
+                <small style="display:block; margin-top:5px;">🔑 Lấy key tại <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a>. Key sẽ được lưu trên trình duyệt của bạn.</small>
+            </div>
+            
+            <div class="image-preview" id="imagePreview" onclick="document.getElementById('imageInput').click()">
+                <i class="fas fa-cloud-upload-alt" style="font-size:2rem; color:#999;"></i>
+                <span>Nhấp để chọn ảnh thời khóa biểu</span>
+            </div>
             <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="previewImage(event)">
-            <button class="btn-primary" onclick="document.getElementById('imageInput').click()" style="width:100%; margin-bottom:10px;"><i class="fas fa-upload"></i> Chọn ảnh từ máy</button>
-            <button class="ai-scan-btn" id="scanBtn" onclick="scanImageWithAI()"><i class="fas fa-brain"></i> 🤖 AI Đọc TKB</button>
-            <div id="scanResult" style="margin-top:15px; display:none; background:#e8f8f5; padding:15px; border-radius:20px;"><div id="scanResultText"></div><button class="btn-success" style="margin-top:10px; width:100%;" onclick="applyAITimetable()">✅ Áp dụng TKB</button></div>
+            <button class="ai-scan-btn" id="scanBtn" onclick="scanImageWithAI()"><i class="fas fa-brain"></i> 🤖 AI Đọc và tự động tạo TKB</button>
+            <div id="scanResult" style="margin-top:15px; display:none; background:#e8f8f5; padding:15px; border-radius:20px;">
+                <div id="scanResultText"></div>
+                <button class="btn-success" style="margin-top:10px; width:100%;" onclick="applyAITimetable()">✅ Áp dụng vào thời khóa biểu</button>
+            </div>
+            <div style="background:#f0f4ff; border-radius:15px; padding:12px; margin-top:15px; text-align:center; font-size:0.7rem;">
+                <i class="fas fa-info-circle"></i> Sử dụng model <strong>Gemini 2.5 Flash Lite</strong> - Nhận dạng ảnh siêu nhanh, chính xác cao.
+            </div>
         </div>
         
         <!-- Xếp hạng -->
@@ -137,20 +161,28 @@
         </div>
     </div>
     
-    <!-- Modal thêm công việc tự tạo -->
-    <div id="taskModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
-        <div class="modal-content" style="background:white; border-radius:30px; padding:25px; width:90%; max-width:400px;">
+    <!-- Modal thêm công việc -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
             <h3 style="margin-bottom:15px;">➕ Thêm công việc</h3>
             <div class="form-group"><label>Môn học</label><input type="text" id="customTaskSubject" placeholder="VD: Toán"></div>
             <div class="form-group"><label>Nội dung</label><textarea id="customTaskContent" rows="2" placeholder="Mô tả công việc..."></textarea></div>
             <div class="form-group"><label>Hạn nộp</label><input type="date" id="customTaskDueDate"></div>
             <button class="btn-primary" style="width:100%" onclick="addCustomTask()">➕ Thêm</button>
-            <button class="btn-outline" style="width:100%; margin-top:10px;" onclick="closeModal()">Hủy</button>
+            <button class="btn-outline" style="width:100%; margin-top:10px;" onclick="closeModal('taskModal')">Hủy</button>
         </div>
     </div>
     
-    <style>.modal.active { display: flex !important; } .form-group { margin-bottom: 15px; } .form-group label { display: block; margin-bottom: 5px; font-weight: 500; } .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 15px; }</style>
-    
+    <!-- Modal chỉnh sửa TKB -->
+    <div id="timetableModal" class="modal">
+        <div class="modal-content">
+            <h3 style="margin-bottom:15px;">📅 Chỉnh sửa TKB</h3>
+            <div id="timetableEditForm"></div>
+            <button class="btn-primary" style="width:100%" onclick="saveTimetable()">💾 Lưu</button>
+            <button class="btn-outline" style="width:100%; margin-top:10px;" onclick="closeModal('timetableModal')">Hủy</button>
+        </div>
+    </div>
+
     <script>
         // ==================== KIỂM TRA ĐĂNG NHẬP ====================
         (function checkAuth() {
@@ -178,14 +210,16 @@
         
         // Tạo dữ liệu mẫu nếu chưa có
         if(myTasks.length === 0) {
+            const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+            const dayAfter = new Date(Date.now() + 172800000).toISOString().split('T')[0];
             myTasks = [
-                { id: 1, title: "Bài tập chương 2", subject: "Toán", description: "Giải bài 1-5 trang 45", dueDate: new Date(Date.now() + 86400000).toISOString().split('T')[0], isToday: true, done: false },
-                { id: 2, title: "Báo cáo thí nghiệm", subject: "Vật lý", description: "Làm báo cáo định luật Ohm", dueDate: new Date(Date.now() + 172800000).toISOString().split('T')[0], isToday: false, done: false }
+                { id: 1, title: "Bài tập chương 2", subject: "Toán", description: "Giải bài 1-5 trang 45", dueDate: tomorrow, isToday: true, done: false },
+                { id: 2, title: "Báo cáo thí nghiệm", subject: "Vật lý", description: "Làm báo cáo định luật Ohm", dueDate: dayAfter, isToday: false, done: false }
             ];
             localStorage.setItem('student_tasks', JSON.stringify(myTasks));
         }
         
-        // ==================== HÀM CHỨC NĂNG ====================
+        // ==================== HÀM CHÍNH ====================
         function showNotification(msg, isError = false) {
             let n = document.createElement('div'); n.className = 'custom-notification';
             n.style.background = isError ? '#e74c3c' : '#27ae60';
@@ -208,9 +242,10 @@
         function formatDate(d) { return new Date(d).toLocaleDateString('vi-VN'); }
         function getWeekday() { return ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'][new Date().getDay()]; }
         
-        function saveData() {
+        function saveStudentData() {
             localStorage.setItem('student_tasks', JSON.stringify(myTasks));
             localStorage.setItem('student_timetable', JSON.stringify(timetable));
+            localStorage.setItem('student_notifications', JSON.stringify(notifications));
         }
         
         // ==================== HIỂN THỊ CÔNG VIỆC ====================
@@ -226,7 +261,7 @@
                         <div style="font-size:0.7rem; margin-top:5px;">📅 Hạn: ${formatDate(t.dueDate)}</div></div></div>`;
             });
             document.getElementById('todayTasksList').innerHTML = html || '<div style="text-align:center; padding:40px;">🎉 Hôm nay không có việc cần làm!</div>';
-            checkAndNotifyDueTasks();
+            checkDueDates();
         }
         
         function renderOtherTasks() {
@@ -243,20 +278,24 @@
         
         function toggleTask(id, checked) {
             let task = myTasks.find(t => t.id === id);
-            if(task) { 
-                task.done = checked; 
-                saveData(); 
-                renderTodayTasks(); 
-                renderOtherTasks(); 
-                showNotification(checked ? 'Đã hoàn thành công việc!' : 'Đã bỏ tick hoàn thành');
-            }
+            if(task) { task.done = checked; saveStudentData(); renderTodayTasks(); renderOtherTasks(); showNotification(checked ? 'Đã hoàn thành!' : 'Đã bỏ tick'); }
+        }
+        
+        function checkDueDates() {
+            const today = new Date().toISOString().split('T')[0];
+            myTasks.forEach(task => {
+                if(!task.done && task.dueDate === today) {
+                    const lastNotified = localStorage.getItem(`notified_${task.id}`);
+                    if(!lastNotified || new Date() - new Date(lastNotified) > 3600000) {
+                        showNotification(`⚠️ Nhắc nhở: Còn 30 phút nữa đến hạn nộp "${task.title}"!`, true);
+                        localStorage.setItem(`notified_${task.id}`, new Date().toISOString());
+                    }
+                }
+            });
         }
         
         // ==================== TỰ THÊM CÔNG VIỆC ====================
-        function showAddCustomTask() {
-            document.getElementById('taskModal').style.display = 'flex';
-        }
-        
+        function showAddCustomTask() { document.getElementById('taskModal').classList.add('active'); }
         function addCustomTask() {
             let subject = document.getElementById('customTaskSubject').value;
             let content = document.getElementById('customTaskContent').value;
@@ -272,54 +311,13 @@
                 done: false
             };
             myTasks.push(newTask);
-            saveData();
+            saveStudentData();
             renderOtherTasks();
-            closeModal();
+            closeModal('taskModal');
             showNotification('Đã thêm công việc!');
             document.getElementById('customTaskSubject').value = '';
             document.getElementById('customTaskContent').value = '';
             document.getElementById('customTaskDueDate').value = '';
-        }
-        
-        function closeModal() { document.getElementById('taskModal').style.display = 'none'; }
-        
-        // ==================== THÔNG BÁO 30 PHÚT TRƯỚC ====================
-        function checkAndNotifyDueTasks() {
-            const now = new Date();
-            const today = now.toISOString().split('T')[0];
-            const currentHour = now.getHours();
-            const currentMinute = now.getMinutes();
-            
-            myTasks.forEach(task => {
-                if(task.done) return;
-                if(task.dueDate === today) {
-                    // Kiểm tra nếu còn 30 phút nữa là đến 23:59
-                    const hourLeft = 23 - currentHour;
-                    const minuteLeft = 59 - currentMinute;
-                    const minutesUntilDue = hourLeft * 60 + minuteLeft;
-                    
-                    if(minutesUntilDue <= 30 && minutesUntilDue > 25) {
-                        const lastNotified = localStorage.getItem(`notified_${task.id}`);
-                        if(!lastNotified || new Date() - new Date(lastNotified) > 3600000) {
-                            showNotification(`⚠️ Nhắc nhở: Còn 30 phút nữa đến hạn nộp "${task.title}"!`, true);
-                            localStorage.setItem(`notified_${task.id}`, new Date().toISOString());
-                        }
-                    }
-                }
-            });
-        }
-        
-        // ==================== KIỂM TRA CUỐI NGÀY ====================
-        function checkEndOfDay() {
-            const today = new Date().toISOString().split('T')[0];
-            const todayTasks = myTasks.filter(t => t.dueDate === today && !t.done);
-            const lastEndOfDayCheck = localStorage.getItem('lastEndOfDayCheck');
-            const todayStr = new Date().toISOString().split('T')[0];
-            
-            if(lastEndOfDayCheck !== todayStr && todayTasks.length > 0) {
-                showNotification(`⚠️ Bạn còn ${todayTasks.length} công việc chưa hoàn thành trong ngày hôm nay! Hãy kiểm tra lại.`, true);
-                localStorage.setItem('lastEndOfDayCheck', todayStr);
-            }
         }
         
         // ==================== TKB ====================
@@ -330,15 +328,36 @@
             document.getElementById('timetableGrid').innerHTML = html;
         }
         
-        // ==================== SCAN ẢNH TKB ====================
-        let currentImageData = null, aiRecognizedData = null;
+        function showEditTimetable() {
+            let days = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"];
+            let html = '';
+            days.forEach(day => { html += `<div class="form-group"><label>${day}</label><input type="text" id="tt_${day}" value="${(timetable[day] || []).join(', ')}" placeholder="Các môn cách nhau dấu phẩy"></div>`; });
+            document.getElementById('timetableEditForm').innerHTML = html;
+            document.getElementById('timetableModal').classList.add('active');
+        }
+        
+        function saveTimetable() {
+            let days = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"];
+            days.forEach(day => { timetable[day] = document.getElementById(`tt_${day}`).value.split(',').map(s=>s.trim()).filter(s=>s); });
+            saveStudentData(); renderTimetable(); closeModal('timetableModal'); showNotification('Đã lưu thời khóa biểu!');
+        }
+        
+        // ==================== SCAN ẢNH TKB (GEMINI 2.5 FLASH LITE) ====================
+        let currentImageData = null;
+        let aiRecognizedData = null;
+        
+        const savedApiKey = localStorage.getItem('gemini_api_key');
+        if (savedApiKey) {
+            document.getElementById('apiKeyInput').value = savedApiKey;
+        }
+        
         function previewImage(event) {
             const file = event.target.files[0];
             if(file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     currentImageData = e.target.result.split(',')[1];
-                    document.getElementById('imagePreview').innerHTML = `<img src="${e.target.result}">`;
+                    document.getElementById('imagePreview').innerHTML = `<img src="${e.target.result}"><span style="font-size:0.8rem;">Đã tải ảnh</span>`;
                     document.getElementById('scanResult').style.display = 'none';
                     showNotification('Đã tải ảnh thành công!');
                 };
@@ -347,42 +366,95 @@
         }
         
         async function scanImageWithAI() {
-            if(!currentImageData) { showNotification('Vui lòng chọn ảnh!', true); return; }
+            if (!currentImageData) { showNotification('Vui lòng chọn ảnh!', true); return; }
+            
+            const apiKey = document.getElementById('apiKeyInput').value.trim();
+            if (!apiKey) { showNotification('Vui lòng nhập API Key Gemini!', true); return; }
+            localStorage.setItem('gemini_api_key', apiKey);
+            
             const btn = document.getElementById('scanBtn');
-            btn.disabled = true; btn.innerHTML = '<span class="loading"></span> AI đang phân tích...';
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span> AI đang phân tích ảnh...';
+            
+            const model = 'gemini-2.5-flash-lite';
+            
+            const prompt = `Bạn là AI chuyên nhận dạng thời khóa biểu.
+Hãy nhìn vào ảnh và trả về CHÍNH XÁC thời khóa biểu theo định dạng JSON dưới đây.
+KHÔNG thêm bất kỳ giải thích hay text nào khác ngoài JSON.
+
+Định dạng JSON trả về:
+{
+    "Thứ 2": ["môn1", "môn2"],
+    "Thứ 3": ["môn1", "môn2"],
+    "Thứ 4": ["môn1", "môn2"],
+    "Thứ 5": ["môn1", "môn2"],
+    "Thứ 6": ["môn1", "môn2"],
+    "Thứ 7": ["môn1", "môn2"],
+    "Chủ nhật": []
+}
+
+Bắt đầu phân tích ảnh ngay bây giờ:`;
+
             try {
-                const res = await fetch('/api/scan', {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ imageBase64: currentImageData })
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [
+                                { text: prompt },
+                                { inlineData: { mimeType: "image/jpeg", data: currentImageData } }
+                            ]
+                        }],
+                        generationConfig: { temperature: 0.1, maxOutputTokens: 1000 }
+                    })
                 });
-                const data = await res.json();
-                if(data.success) {
-                    aiRecognizedData = data.timetable;
-                    let html = '<strong>📖 AI đã đọc được:</strong><br>';
-                    for(let day of ["Thứ 2","Thứ 3","Thứ 4","Thứ 5","Thứ 6","Thứ 7","Chủ nhật"]) {
-                        if(aiRecognizedData[day]?.length) html += `<br><strong>${day}:</strong> ${aiRecognizedData[day].join(', ')}`;
-                    }
-                    document.getElementById('scanResultText').innerHTML = html;
-                    document.getElementById('scanResult').style.display = 'block';
-                    showNotification('AI đã đọc thành công!');
-                } else throw new Error(data.error || 'Không đọc được');
-            } catch(e) { showNotification('Lỗi: '+e.message, true); }
-            finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-brain"></i> 🤖 AI Đọc TKB'; }
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    console.error('API Error:', data);
+                    throw new Error(data.error?.message || 'Lỗi từ Gemini API');
+                }
+                
+                const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                const match = text.match(/\{[\s\S]*\}/);
+                
+                if (!match) throw new Error('Không thể đọc được nội dung từ ảnh');
+                
+                aiRecognizedData = JSON.parse(match[0]);
+                
+                let html = '<strong>📖 AI đã đọc được:</strong><br>';
+                for (let day of ["Thứ 2","Thứ 3","Thứ 4","Thứ 5","Thứ 6","Thứ 7","Chủ nhật"]) {
+                    if (aiRecognizedData[day]?.length) html += `<br><strong>${day}:</strong> ${aiRecognizedData[day].join(', ')}`;
+                }
+                document.getElementById('scanResultText').innerHTML = html;
+                document.getElementById('scanResult').style.display = 'block';
+                showNotification('AI đã đọc thành công với Gemini 2.5 Flash Lite!');
+                
+            } catch (error) {
+                console.error(error);
+                showNotification('Lỗi: ' + error.message, true);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-brain"></i> 🤖 AI Đọc và tự động tạo TKB';
+            }
         }
         
         function applyAITimetable() {
-            if(aiRecognizedData) {
-                for(let day of ["Thứ 2","Thứ 3","Thứ 4","Thứ 5","Thứ 6","Thứ 7","Chủ nhật"]) {
-                    if(aiRecognizedData[day]?.length) timetable[day] = aiRecognizedData[day];
+            if (aiRecognizedData) {
+                for (let day of ["Thứ 2","Thứ 3","Thứ 4","Thứ 5","Thứ 6","Thứ 7","Chủ nhật"]) {
+                    if (aiRecognizedData[day]?.length) timetable[day] = aiRecognizedData[day];
                 }
-                saveData(); renderTimetable(); showNotification('Đã áp dụng TKB từ AI!');
+                saveStudentData();
+                renderTimetable();
+                showNotification('Đã áp dụng TKB từ AI!');
                 document.getElementById('scanResult').style.display = 'none';
                 switchTab('timetable');
             }
         }
         
-        // ==================== XẾP HẠNG & THÔNG BÁO ====================
+        // ==================== XẾP HẠNG ====================
         function renderLeaderboard() {
             let html = '';
             leaderboard.forEach(item => {
@@ -398,6 +470,7 @@
             document.getElementById('myScore').innerHTML = myRank ? `⭐ ${myRank.score} điểm` : '⭐ 0 điểm';
         }
         
+        // ==================== THÔNG BÁO ====================
         function renderNotifications() {
             let html = '';
             notifications.forEach(n => {
@@ -408,19 +481,14 @@
             document.getElementById('notificationsList').innerHTML = html;
         }
         
-        // ==================== KHỞI TẠO & TIMER ====================
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        window.onclick = function(e) { if(e.target.classList.contains('modal')) e.target.classList.remove('active'); }
+        
+        // ==================== KHỞI TẠO ====================
         document.getElementById('todayDate').innerText = `${getWeekday()}, ${new Date().toLocaleDateString('vi-VN')}`;
         renderTodayTasks(); renderOtherTasks(); renderTimetable(); renderLeaderboard(); renderNotifications();
-        checkEndOfDay();
         
-        // Kiểm tra mỗi 30 phút
-        setInterval(() => {
-            checkAndNotifyDueTasks();
-            checkEndOfDay();
-        }, 30 * 60 * 1000);
-        
-        // Đóng modal khi click ra ngoài
-        window.onclick = function(e) { if(e.target.classList && e.target.classList.contains('modal')) e.target.style.display = 'none'; }
+        setInterval(() => checkDueDates(), 30 * 60 * 1000);
     </script>
 </body>
 </html>
