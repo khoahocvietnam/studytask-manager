@@ -8,218 +8,115 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
         .container { max-width: 1400px; margin: 0 auto; }
-        
-        .dashboard-header {
-            background: rgba(255,255,255,0.98);
-            border-radius: 30px;
-            padding: 18px 25px;
-            margin-bottom: 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-        .header-title h1 { font-size: 1.4rem; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; align-items: center; gap: 10px; }
+        .dashboard-header { background: rgba(255,255,255,0.98); border-radius: 30px; padding: 18px 25px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
         .user-info { display: flex; align-items: center; gap: 15px; background: #f8f9fa; padding: 8px 18px; border-radius: 50px; }
-        .user-avatar { width: 45px; height: 45px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.2rem; }
-        .logout-btn { background: #e74c3c; color: white; border: none; padding: 8px 18px; border-radius: 30px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
-        .logout-btn:hover { transform: translateY(-2px); background: #c0392b; }
-        
+        .user-avatar { width: 45px; height: 45px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+        .logout-btn { background: #e74c3c; color: white; border: none; padding: 8px 18px; border-radius: 30px; cursor: pointer; }
         .dashboard-tabs { display: flex; gap: 12px; margin-bottom: 25px; flex-wrap: wrap; }
-        .dash-tab { padding: 12px 28px; background: rgba(255,255,255,0.95); border: none; border-radius: 50px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.3s; color: #4b5563; }
-        .dash-tab i { margin-right: 8px; }
-        .dash-tab.active { background: linear-gradient(135deg, #667eea, #764ba2); color: white; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(102,126,234,0.3); }
-        
-        .dash-panel { display: none; background: rgba(255,255,255,0.98); border-radius: 30px; padding: 25px; animation: fadeIn 0.3s ease; }
+        .dash-tab { padding: 12px 28px; background: rgba(255,255,255,0.95); border: none; border-radius: 50px; font-size: 0.9rem; font-weight: 600; cursor: pointer; color: #4b5563; }
+        .dash-tab.active { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+        .dash-panel { display: none; background: rgba(255,255,255,0.98); border-radius: 30px; padding: 25px; }
         .dash-panel.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .panel-title { font-size: 1.2rem; font-weight: 700; color: #1f2937; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 3px solid #667eea; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
-        
+        .panel-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 3px solid #667eea; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
         .task-item { background: #f8f9fa; border-radius: 20px; padding: 18px; margin-bottom: 15px; border-left: 4px solid #667eea; display: flex; align-items: center; gap: 15px; }
         .task-checkbox { width: 24px; height: 24px; cursor: pointer; }
         .task-content { flex: 1; }
         .task-title { font-weight: 700; margin-bottom: 5px; }
         .task-done { text-decoration: line-through; opacity: 0.6; }
-        
-        .rank-card { background: linear-gradient(135deg, #f39c12, #e67e22); color: white; border-radius: 24px; padding: 20px; text-align: center; margin-bottom: 20px; }
-        .rank-number { font-size: 2.5rem; font-weight: 800; }
-        
-        .leaderboard-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #e9ecef; }
-        .leaderboard-rank { width: 50px; font-weight: 700; }
-        .leaderboard-name { flex: 1; }
-        .leaderboard-score { font-weight: 600; color: #667eea; }
-        
         .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 16px; }
-        .weekday-header { text-align: center; padding: 10px; background: #667eea; color: white; border-radius: 15px; font-weight: 600; font-size: 0.8rem; }
+        .weekday-header { text-align: center; padding: 10px; background: #667eea; color: white; border-radius: 15px; font-weight: 600; }
         .subject-cell { background: #f8f9fa; border-radius: 15px; padding: 12px; min-height: 70px; text-align: center; font-size: 0.75rem; white-space: pre-line; }
-        
-        .image-preview { background: #f0f0f0; border-radius: 20px; padding: 20px; margin-bottom: 15px; min-height: 180px; display: flex; align-items: center; justify-content: center; border: 2px dashed #ccc; cursor: pointer; flex-direction: column; gap: 10px; }
-        .image-preview img { max-width: 100%; max-height: 160px; border-radius: 15px; }
-        .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 10px 20px; border-radius: 30px; font-weight: 600; cursor: pointer; }
-        .btn-success { background: #27ae60; color: white; }
-        .btn-outline { background: transparent; border: 2px solid #667eea; color: #667eea; }
-        .ai-scan-btn { background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; padding: 12px; border: none; border-radius: 30px; width: 100%; font-weight: 600; cursor: pointer; }
-        .loading { display: inline-block; width: 16px; height: 16px; border: 2px solid white; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 8px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        
-        .api-config { background: #fff3cd; border-radius: 20px; padding: 15px; margin-bottom: 15px; }
-        .api-config input { width: 100%; padding: 10px; border: 1px solid #f59e0b; border-radius: 15px; margin-top: 8px; }
-        
-        .custom-notification { position: fixed; bottom: 20px; left: 20px; right: 20px; padding: 14px 20px; border-radius: 20px; text-align: center; z-index: 1001; animation: slideUp 0.3s ease; }
-        @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        
+        .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 10px 20px; border-radius: 30px; cursor: pointer; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
         .modal.active { display: flex; }
         .modal-content { background: white; border-radius: 30px; padding: 25px; width: 90%; max-width: 500px; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
         .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 15px; }
-        
-        @media (max-width: 768px) {
-            .dashboard-header { flex-direction: column; text-align: center; }
-            .weekdays { gap: 4px; }
-            .weekday-header { font-size: 0.65rem; padding: 6px; }
-            .subject-cell { font-size: 0.65rem; padding: 8px; }
-        }
+        .custom-notification { position: fixed; bottom: 20px; left: 20px; right: 20px; padding: 14px; border-radius: 20px; text-align: center; z-index: 1001; animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @media (max-width: 768px) { .dashboard-header { flex-direction: column; text-align: center; } }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="dashboard-header">
-            <div class="header-title"><h1><i class="fas fa-graduation-cap"></i> StudyTask Manager</h1><p style="font-size:0.8rem; color:#6c757d;">Học tập thông minh mỗi ngày</p></div>
-            <div class="user-info"><div class="user-avatar" id="userAvatar">H</div><div><div class="user-name" id="userName" style="font-weight:600;">Học sinh</div><div style="font-size:0.7rem; color:#6c757d;">Học sinh</div></div><button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Thoát</button></div>
+            <div class="header-title"><h1><i class="fas fa-graduation-cap"></i> StudyTask Manager</h1></div>
+            <div class="user-info"><div class="user-avatar" id="userAvatar">H</div><div><div class="user-name" id="userName"></div><div style="font-size:0.7rem;">Học sinh</div></div><button class="logout-btn" onclick="logout()">Thoát</button></div>
         </div>
         
         <div class="dashboard-tabs">
-            <button class="dash-tab active" onclick="switchTab('tasks')"><i class="fas fa-check-circle"></i> Việc cần làm</button>
+            <button class="dash-tab active" onclick="switchTab('tasks')"><i class="fas fa-check-circle"></i> Công việc</button>
             <button class="dash-tab" onclick="switchTab('timetable')"><i class="fas fa-calendar-alt"></i> TKB</button>
-            <button class="dash-tab" onclick="switchTab('scan')"><i class="fas fa-camera"></i> Scan TKB</button>
-            <button class="dash-tab" onclick="switchTab('rank')"><i class="fas fa-trophy"></i> Xếp hạng</button>
-            <button class="dash-tab" onclick="switchTab('notifications')"><i class="fas fa-bell"></i> Thông báo</button>
         </div>
         
-        <!-- Việc cần làm -->
         <div id="tasksPanel" class="dash-panel active">
-            <div class="panel-title"><span><i class="fas fa-check-circle"></i> Việc cần làm hôm nay - <span id="todayDate"></span></span><span id="taskSummary" style="font-size:0.85rem;"></span></div>
+            <div class="panel-title"><span><i class="fas fa-check-circle"></i> Việc cần làm hôm nay - <span id="todayDate"></span></span></div>
             <div id="todayTasksList"></div>
-            <div class="panel-title" style="margin-top:25px;"><span><i class="fas fa-calendar-week"></i> Các bài tập khác</span><button class="btn-primary" style="padding:8px 16px;" onclick="showAddCustomTask()"><i class="fas fa-plus"></i> Tự thêm</button></div>
+            <div class="panel-title" style="margin-top:25px;"><span><i class="fas fa-calendar-week"></i> Các việc khác</span><button class="btn-primary" style="padding:8px 16px;" onclick="showAddTaskModal()"><i class="fas fa-plus"></i> Thêm việc</button></div>
             <div id="otherTasksList"></div>
         </div>
         
-        <!-- TKB -->
         <div id="timetablePanel" class="dash-panel">
-            <div class="panel-title"><span><i class="fas fa-calendar-alt"></i> Thời khóa biểu</span><button class="btn-primary" onclick="showEditTimetable()"><i class="fas fa-edit"></i> Chỉnh sửa</button></div>
+            <div class="panel-title"><span><i class="fas fa-calendar-alt"></i> Thời khóa biểu</span></div>
             <div id="timetableGrid"></div>
         </div>
-        
-        <!-- Scan TKB -->
-        <div id="scanPanel" class="dash-panel">
-            <div class="panel-title"><span><i class="fas fa-camera"></i> Quét ảnh thời khóa biểu</span><span style="background:#e74c3c; padding:4px 12px; border-radius:20px; font-size:0.7rem; color:white;">Gemini 2.5 Flash Lite</span></div>
-            
-            <div class="api-config">
-                <i class="fas fa-key"></i> <strong>API Key Gemini</strong>
-                <input type="password" id="apiKeyInput" placeholder="Nhập API Key Gemini" value="">
-                <small style="display:block; margin-top:5px;">🔑 Lấy key tại <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a>. Key sẽ được lưu trên trình duyệt của bạn.</small>
-            </div>
-            
-            <div class="image-preview" id="imagePreview" onclick="document.getElementById('imageInput').click()">
-                <i class="fas fa-cloud-upload-alt" style="font-size:2rem; color:#999;"></i>
-                <span>Nhấp để chọn ảnh thời khóa biểu</span>
-            </div>
-            <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="previewImage(event)">
-            <button class="ai-scan-btn" id="scanBtn" onclick="scanImageWithAI()"><i class="fas fa-brain"></i> 🤖 AI Đọc và tự động tạo TKB</button>
-            <div id="scanResult" style="margin-top:15px; display:none; background:#e8f8f5; padding:15px; border-radius:20px;">
-                <div id="scanResultText"></div>
-                <button class="btn-success" style="margin-top:10px; width:100%;" onclick="applyAITimetable()">✅ Áp dụng vào thời khóa biểu</button>
-            </div>
-            <div style="background:#f0f4ff; border-radius:15px; padding:12px; margin-top:15px; text-align:center; font-size:0.7rem;">
-                <i class="fas fa-info-circle"></i> Sử dụng model <strong>Gemini 2.5 Flash Lite</strong> - Nhận dạng ảnh siêu nhanh, chính xác cao.
-            </div>
-        </div>
-        
-        <!-- Xếp hạng -->
-        <div id="rankPanel" class="dash-panel">
-            <div class="rank-card"><div class="rank-number" id="myRank">#?</div><div>Xếp hạng của bạn</div><div style="font-size:0.85rem; margin-top:5px;" id="myScore">⭐ 0 điểm</div></div>
-            <div class="panel-title"><span><i class="fas fa-trophy"></i> Bảng xếp hạng lớp</span></div>
-            <div id="leaderboardList"></div>
-        </div>
-        
-        <!-- Thông báo -->
-        <div id="notificationsPanel" class="dash-panel">
-            <div class="panel-title"><span><i class="fas fa-bell"></i> Thông báo</span></div>
-            <div id="notificationsList"></div>
-        </div>
     </div>
     
-    <!-- Modal thêm công việc -->
-    <div id="taskModal" class="modal">
-        <div class="modal-content">
-            <h3 style="margin-bottom:15px;">➕ Thêm công việc</h3>
-            <div class="form-group"><label>Môn học</label><input type="text" id="customTaskSubject" placeholder="VD: Toán"></div>
-            <div class="form-group"><label>Nội dung</label><textarea id="customTaskContent" rows="2" placeholder="Mô tả công việc..."></textarea></div>
-            <div class="form-group"><label>Hạn nộp</label><input type="date" id="customTaskDueDate"></div>
-            <button class="btn-primary" style="width:100%" onclick="addCustomTask()">➕ Thêm</button>
-            <button class="btn-outline" style="width:100%; margin-top:10px;" onclick="closeModal('taskModal')">Hủy</button>
-        </div>
-    </div>
-    
-    <!-- Modal chỉnh sửa TKB -->
-    <div id="timetableModal" class="modal">
-        <div class="modal-content">
-            <h3 style="margin-bottom:15px;">📅 Chỉnh sửa TKB</h3>
-            <div id="timetableEditForm"></div>
-            <button class="btn-primary" style="width:100%" onclick="saveTimetable()">💾 Lưu</button>
-            <button class="btn-outline" style="width:100%; margin-top:10px;" onclick="closeModal('timetableModal')">Hủy</button>
-        </div>
-    </div>
+    <div id="taskModal" class="modal"><div class="modal-content"><h3>➕ Thêm việc cần làm</h3>
+        <div class="form-group"><label>Môn học</label><input type="text" id="taskSubject" placeholder="VD: Toán"></div>
+        <div class="form-group"><label>Nội dung</label><textarea id="taskContent" rows="3" placeholder="Mô tả công việc..."></textarea></div>
+        <div class="form-group"><label>Hạn nộp</label><input type="date" id="taskDueDate"></div>
+        <button class="btn-primary" onclick="addCustomTask()">Thêm</button>
+        <button class="btn-outline" style="margin-top:10px;" onclick="closeModal('taskModal')">Hủy</button>
+    </div></div>
 
     <script>
-        // ==================== KIỂM TRA ĐĂNG NHẬP ====================
-        (function checkAuth() {
-            const currentUser = localStorage.getItem('currentUser');
-            if (!currentUser) { window.location.href = 'index.html'; return; }
-            const user = JSON.parse(currentUser);
-            document.getElementById('userName').textContent = user.name;
-            document.getElementById('userAvatar').textContent = user.name.charAt(0);
-            if (user.role === 'teacher') window.location.href = 'teacher.html';
+        let currentUser = null;
+        let myTasks = [];
+        let timetable = {};
+        
+        (function init() {
+            const user = localStorage.getItem('currentUser');
+            if(!user) { window.location.href = 'index.html'; return; }
+            currentUser = JSON.parse(user);
+            if(currentUser.role !== 'student') { window.location.href = 'teacher.html'; return; }
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('userAvatar').textContent = currentUser.name.charAt(0);
+            loadMyTasks();
+            loadTimetable();
+            renderTodayTasks();
+            renderOtherTasks();
         })();
         
-        // ==================== DỮ LIỆU ====================
-        let myTasks = JSON.parse(localStorage.getItem('student_tasks')) || [];
-        let timetable = JSON.parse(localStorage.getItem('student_timetable')) || {
-            "Thứ 2": ["Toán", "Vật lý"], "Thứ 3": ["Hóa học", "Ngữ văn"], "Thứ 4": ["Toán", "Lịch sử"],
-            "Thứ 5": ["Hóa học", "Địa lý"], "Thứ 6": ["Vật lý", "Ngữ văn"], "Thứ 7": ["Sinh học", "Tin học"], "Chủ nhật": []
-        };
-        let notifications = JSON.parse(localStorage.getItem('student_notifications')) || [
-            { id: 1, title: "Chào mừng", content: "Chào mừng bạn đến với StudyTask Manager!", date: new Date().toISOString().split('T')[0] }
-        ];
-        let leaderboard = JSON.parse(localStorage.getItem('student_leaderboard')) || [
-            { rank: 1, name: "Trần Thị B", score: 145 }, { rank: 2, name: "Phạm Văn D", score: 128 },
-            { rank: 3, name: "Nguyễn Văn A", score: 115 }, { rank: 4, name: "Lê Thị E", score: 98 }
-        ];
-        
-        // Tạo dữ liệu mẫu nếu chưa có
-        if(myTasks.length === 0) {
-            const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
-            const dayAfter = new Date(Date.now() + 172800000).toISOString().split('T')[0];
-            myTasks = [
-                { id: 1, title: "Bài tập chương 2", subject: "Toán", description: "Giải bài 1-5 trang 45", dueDate: tomorrow, isToday: true, done: false },
-                { id: 2, title: "Báo cáo thí nghiệm", subject: "Vật lý", description: "Làm báo cáo định luật Ohm", dueDate: dayAfter, isToday: false, done: false }
-            ];
-            localStorage.setItem('student_tasks', JSON.stringify(myTasks));
+        function loadMyTasks() {
+            let allTasks = JSON.parse(localStorage.getItem('student_tasks')) || {};
+            myTasks = allTasks[currentUser.id] || [];
+            if(myTasks.length === 0) {
+                myTasks = [];
+                allTasks[currentUser.id] = myTasks;
+                localStorage.setItem('student_tasks', JSON.stringify(allTasks));
+            }
         }
         
-        // ==================== HÀM CHÍNH ====================
+        function loadTimetable() {
+            let timetables = JSON.parse(localStorage.getItem('timetables')) || {};
+            let classTimetable = timetables[currentUser.classId] || { "Thứ 2": [], "Thứ 3": [], "Thứ 4": [], "Thứ 5": [], "Thứ 6": [], "Thứ 7": [], "Chủ nhật": [] };
+            timetable = classTimetable;
+            let days = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"];
+            let html = '<div class="weekdays">' + days.map(d => `<div class="weekday-header">${d}</div>`).join('') + '</div>';
+            html += '<div class="weekdays">' + days.map(d => `<div class="subject-cell">${(timetable[d] || []).join('<br>') || '📭 Trống'}</div>`).join('') + '</div>';
+            document.getElementById('timetableGrid').innerHTML = html;
+        }
+        
+        function saveMyTasks() {
+            let allTasks = JSON.parse(localStorage.getItem('student_tasks')) || {};
+            allTasks[currentUser.id] = myTasks;
+            localStorage.setItem('student_tasks', JSON.stringify(allTasks));
+        }
+        
         function showNotification(msg, isError = false) {
             let n = document.createElement('div'); n.className = 'custom-notification';
             n.style.background = isError ? '#e74c3c' : '#27ae60';
@@ -234,72 +131,50 @@
             document.querySelectorAll('.dash-panel').forEach(p => p.classList.remove('active'));
             event.target.classList.add('active');
             document.getElementById(`${tab}Panel`).classList.add('active');
-            if(tab === 'rank') renderLeaderboard();
-            if(tab === 'timetable') renderTimetable();
-            if(tab === 'notifications') renderNotifications();
+            if(tab === 'timetable') loadTimetable();
         }
         
         function formatDate(d) { return new Date(d).toLocaleDateString('vi-VN'); }
         function getWeekday() { return ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'][new Date().getDay()]; }
         
-        function saveStudentData() {
-            localStorage.setItem('student_tasks', JSON.stringify(myTasks));
-            localStorage.setItem('student_timetable', JSON.stringify(timetable));
-            localStorage.setItem('student_notifications', JSON.stringify(notifications));
-        }
-        
-        // ==================== HIỂN THỊ CÔNG VIỆC ====================
         function renderTodayTasks() {
-            let todayTasks = myTasks.filter(t => t.isToday);
+            let today = new Date().toISOString().split('T')[0];
+            let todayTasks = myTasks.filter(t => t.dueDate === today);
             let completed = todayTasks.filter(t => t.done).length;
-            document.getElementById('taskSummary').innerHTML = `✅ ${completed}/${todayTasks.length} hoàn thành`;
             let html = '';
             todayTasks.forEach(t => {
                 html += `<div class="task-item"><input type="checkbox" class="task-checkbox" onchange="toggleTask(${t.id}, this.checked)" ${t.done ? 'checked' : ''}>
                         <div class="task-content"><div class="task-title ${t.done ? 'task-done' : ''}">📖 ${t.subject} - ${t.title}</div>
-                        <div style="font-size:0.8rem; color:#6c757d;">${t.description}</div>
-                        <div style="font-size:0.7rem; margin-top:5px;">📅 Hạn: ${formatDate(t.dueDate)}</div></div></div>`;
+                        <div style="font-size:0.8rem;">${t.description}</div>
+                        <div style="font-size:0.7rem;">📅 Hạn: ${formatDate(t.dueDate)}</div></div></div>`;
             });
             document.getElementById('todayTasksList').innerHTML = html || '<div style="text-align:center; padding:40px;">🎉 Hôm nay không có việc cần làm!</div>';
-            checkDueDates();
         }
         
         function renderOtherTasks() {
-            let otherTasks = myTasks.filter(t => !t.isToday);
+            let today = new Date().toISOString().split('T')[0];
+            let otherTasks = myTasks.filter(t => t.dueDate !== today);
             let html = '';
             otherTasks.forEach(t => {
                 html += `<div class="task-item"><input type="checkbox" class="task-checkbox" onchange="toggleTask(${t.id}, this.checked)" ${t.done ? 'checked' : ''}>
                         <div class="task-content"><div class="task-title ${t.done ? 'task-done' : ''}">📖 ${t.subject} - ${t.title}</div>
-                        <div style="font-size:0.8rem; color:#6c757d;">${t.description}</div>
-                        <div style="font-size:0.7rem; margin-top:5px;">📅 Hạn: ${formatDate(t.dueDate)}</div></div></div>`;
+                        <div style="font-size:0.8rem;">${t.description}</div>
+                        <div style="font-size:0.7rem;">📅 Hạn: ${formatDate(t.dueDate)}</div></div></div>`;
             });
-            document.getElementById('otherTasksList').innerHTML = html || '<div style="text-align:center; padding:40px;">📭 Không có bài tập nào khác</div>';
+            document.getElementById('otherTasksList').innerHTML = html || '<div style="text-align:center; padding:40px;">📭 Không có việc nào khác</div>';
         }
         
         function toggleTask(id, checked) {
             let task = myTasks.find(t => t.id === id);
-            if(task) { task.done = checked; saveStudentData(); renderTodayTasks(); renderOtherTasks(); showNotification(checked ? 'Đã hoàn thành!' : 'Đã bỏ tick'); }
+            if(task) { task.done = checked; saveMyTasks(); renderTodayTasks(); renderOtherTasks(); showNotification(checked ? 'Đã hoàn thành!' : 'Đã bỏ tick'); }
         }
         
-        function checkDueDates() {
-            const today = new Date().toISOString().split('T')[0];
-            myTasks.forEach(task => {
-                if(!task.done && task.dueDate === today) {
-                    const lastNotified = localStorage.getItem(`notified_${task.id}`);
-                    if(!lastNotified || new Date() - new Date(lastNotified) > 3600000) {
-                        showNotification(`⚠️ Nhắc nhở: Còn 30 phút nữa đến hạn nộp "${task.title}"!`, true);
-                        localStorage.setItem(`notified_${task.id}`, new Date().toISOString());
-                    }
-                }
-            });
-        }
+        function showAddTaskModal() { document.getElementById('taskModal').classList.add('active'); }
         
-        // ==================== TỰ THÊM CÔNG VIỆC ====================
-        function showAddCustomTask() { document.getElementById('taskModal').classList.add('active'); }
         function addCustomTask() {
-            let subject = document.getElementById('customTaskSubject').value;
-            let content = document.getElementById('customTaskContent').value;
-            let dueDate = document.getElementById('customTaskDueDate').value;
+            let subject = document.getElementById('taskSubject').value.trim();
+            let content = document.getElementById('taskContent').value.trim();
+            let dueDate = document.getElementById('taskDueDate').value;
             if(!subject || !content) { showNotification('Vui lòng nhập đầy đủ!', true); return; }
             let newTask = {
                 id: Date.now(),
@@ -307,188 +182,22 @@
                 subject: subject,
                 description: content,
                 dueDate: dueDate || new Date(Date.now() + 86400000).toISOString().split('T')[0],
-                isToday: false,
                 done: false
             };
             myTasks.push(newTask);
-            saveStudentData();
+            saveMyTasks();
             renderOtherTasks();
             closeModal('taskModal');
             showNotification('Đã thêm công việc!');
-            document.getElementById('customTaskSubject').value = '';
-            document.getElementById('customTaskContent').value = '';
-            document.getElementById('customTaskDueDate').value = '';
-        }
-        
-        // ==================== TKB ====================
-        function renderTimetable() {
-            let days = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"];
-            let html = '<div class="weekdays">' + days.map(d => `<div class="weekday-header">${d}</div>`).join('') + '</div>';
-            html += '<div class="weekdays">' + days.map(d => `<div class="subject-cell">${(timetable[d] || []).join('<br>') || '📭'}</div>`).join('') + '</div>';
-            document.getElementById('timetableGrid').innerHTML = html;
-        }
-        
-        function showEditTimetable() {
-            let days = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"];
-            let html = '';
-            days.forEach(day => { html += `<div class="form-group"><label>${day}</label><input type="text" id="tt_${day}" value="${(timetable[day] || []).join(', ')}" placeholder="Các môn cách nhau dấu phẩy"></div>`; });
-            document.getElementById('timetableEditForm').innerHTML = html;
-            document.getElementById('timetableModal').classList.add('active');
-        }
-        
-        function saveTimetable() {
-            let days = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"];
-            days.forEach(day => { timetable[day] = document.getElementById(`tt_${day}`).value.split(',').map(s=>s.trim()).filter(s=>s); });
-            saveStudentData(); renderTimetable(); closeModal('timetableModal'); showNotification('Đã lưu thời khóa biểu!');
-        }
-        
-        // ==================== SCAN ẢNH TKB (GEMINI 2.5 FLASH LITE) ====================
-        let currentImageData = null;
-        let aiRecognizedData = null;
-        
-        const savedApiKey = localStorage.getItem('gemini_api_key');
-        if (savedApiKey) {
-            document.getElementById('apiKeyInput').value = savedApiKey;
-        }
-        
-        function previewImage(event) {
-            const file = event.target.files[0];
-            if(file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    currentImageData = e.target.result.split(',')[1];
-                    document.getElementById('imagePreview').innerHTML = `<img src="${e.target.result}"><span style="font-size:0.8rem;">Đã tải ảnh</span>`;
-                    document.getElementById('scanResult').style.display = 'none';
-                    showNotification('Đã tải ảnh thành công!');
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-        
-        async function scanImageWithAI() {
-            if (!currentImageData) { showNotification('Vui lòng chọn ảnh!', true); return; }
-            
-            const apiKey = document.getElementById('apiKeyInput').value.trim();
-            if (!apiKey) { showNotification('Vui lòng nhập API Key Gemini!', true); return; }
-            localStorage.setItem('gemini_api_key', apiKey);
-            
-            const btn = document.getElementById('scanBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<span class="loading"></span> AI đang phân tích ảnh...';
-            
-            const model = 'gemini-2.5-flash-lite';
-            
-            const prompt = `Bạn là AI chuyên nhận dạng thời khóa biểu.
-Hãy nhìn vào ảnh và trả về CHÍNH XÁC thời khóa biểu theo định dạng JSON dưới đây.
-KHÔNG thêm bất kỳ giải thích hay text nào khác ngoài JSON.
-
-Định dạng JSON trả về:
-{
-    "Thứ 2": ["môn1", "môn2"],
-    "Thứ 3": ["môn1", "môn2"],
-    "Thứ 4": ["môn1", "môn2"],
-    "Thứ 5": ["môn1", "môn2"],
-    "Thứ 6": ["môn1", "môn2"],
-    "Thứ 7": ["môn1", "môn2"],
-    "Chủ nhật": []
-}
-
-Bắt đầu phân tích ảnh ngay bây giờ:`;
-
-            try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{
-                            parts: [
-                                { text: prompt },
-                                { inlineData: { mimeType: "image/jpeg", data: currentImageData } }
-                            ]
-                        }],
-                        generationConfig: { temperature: 0.1, maxOutputTokens: 1000 }
-                    })
-                });
-                
-                const data = await response.json();
-                
-                if (!response.ok) {
-                    console.error('API Error:', data);
-                    throw new Error(data.error?.message || 'Lỗi từ Gemini API');
-                }
-                
-                const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-                const match = text.match(/\{[\s\S]*\}/);
-                
-                if (!match) throw new Error('Không thể đọc được nội dung từ ảnh');
-                
-                aiRecognizedData = JSON.parse(match[0]);
-                
-                let html = '<strong>📖 AI đã đọc được:</strong><br>';
-                for (let day of ["Thứ 2","Thứ 3","Thứ 4","Thứ 5","Thứ 6","Thứ 7","Chủ nhật"]) {
-                    if (aiRecognizedData[day]?.length) html += `<br><strong>${day}:</strong> ${aiRecognizedData[day].join(', ')}`;
-                }
-                document.getElementById('scanResultText').innerHTML = html;
-                document.getElementById('scanResult').style.display = 'block';
-                showNotification('AI đã đọc thành công với Gemini 2.5 Flash Lite!');
-                
-            } catch (error) {
-                console.error(error);
-                showNotification('Lỗi: ' + error.message, true);
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-brain"></i> 🤖 AI Đọc và tự động tạo TKB';
-            }
-        }
-        
-        function applyAITimetable() {
-            if (aiRecognizedData) {
-                for (let day of ["Thứ 2","Thứ 3","Thứ 4","Thứ 5","Thứ 6","Thứ 7","Chủ nhật"]) {
-                    if (aiRecognizedData[day]?.length) timetable[day] = aiRecognizedData[day];
-                }
-                saveStudentData();
-                renderTimetable();
-                showNotification('Đã áp dụng TKB từ AI!');
-                document.getElementById('scanResult').style.display = 'none';
-                switchTab('timetable');
-            }
-        }
-        
-        // ==================== XẾP HẠNG ====================
-        function renderLeaderboard() {
-            let html = '';
-            leaderboard.forEach(item => {
-                let isMe = item.name === "Nguyễn Văn A";
-                html += `<div class="leaderboard-item" style="${isMe ? 'background:#f0f4ff;' : ''}">
-                        <div class="leaderboard-rank">${item.rank === 1 ? '🥇' : item.rank === 2 ? '🥈' : item.rank === 3 ? '🥉' : `#${item.rank}`}</div>
-                        <div class="leaderboard-name">${item.name} ${isMe ? '(Bạn)' : ''}</div>
-                        <div class="leaderboard-score">⭐ ${item.score}</div></div>`;
-            });
-            document.getElementById('leaderboardList').innerHTML = html;
-            let myRank = leaderboard.find(l => l.name === "Nguyễn Văn A");
-            document.getElementById('myRank').innerHTML = myRank ? `#${myRank.rank}` : '#?';
-            document.getElementById('myScore').innerHTML = myRank ? `⭐ ${myRank.score} điểm` : '⭐ 0 điểm';
-        }
-        
-        // ==================== THÔNG BÁO ====================
-        function renderNotifications() {
-            let html = '';
-            notifications.forEach(n => {
-                html += `<div style="background:#f8f9fa; border-radius:15px; padding:15px; margin-bottom:10px; border-left:4px solid #667eea;">
-                        <div style="font-weight:600;">🔔 ${n.title}</div><div style="font-size:0.85rem; margin:8px 0;">${n.content}</div>
-                        <div style="font-size:0.7rem; color:#adb5bd;">📅 ${formatDate(n.date)}</div></div>`;
-            });
-            document.getElementById('notificationsList').innerHTML = html;
+            document.getElementById('taskSubject').value = '';
+            document.getElementById('taskContent').value = '';
+            document.getElementById('taskDueDate').value = '';
         }
         
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
         window.onclick = function(e) { if(e.target.classList.contains('modal')) e.target.classList.remove('active'); }
         
-        // ==================== KHỞI TẠO ====================
         document.getElementById('todayDate').innerText = `${getWeekday()}, ${new Date().toLocaleDateString('vi-VN')}`;
-        renderTodayTasks(); renderOtherTasks(); renderTimetable(); renderLeaderboard(); renderNotifications();
-        
-        setInterval(() => checkDueDates(), 30 * 60 * 1000);
     </script>
 </body>
 </html>
